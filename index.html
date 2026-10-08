@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Treino de Acordes</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header class="app-header">
+  <div class="app-header-inner">
+    <h1>Treino de Acordes</h1>
+    <nav class="tabs">
+      <button type="button" data-tab="select" class="tab-btn active">Escolher Acordes</button>
+      <button type="button" data-tab="play" class="tab-btn">Praticar</button>
+      <button type="button" data-tab="stats" class="tab-btn">Estatísticas</button>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+  <!-- ===================== SELEÇÃO DE ACORDES ===================== -->
+  <section id="tab-select" class="tab-panel active">
+    <h2>Grupos prontos</h2>
+    <div class="preset-grid" id="presetGrid"></div>
+
+    <h2>Ou escolha acordes específicos</h2>
+    <div class="chord-picker" id="chordPicker"></div>
+
+    <div class="selection-footer">
+      <div class="selection-footer-inner">
+        <span id="selectionCount">0 acordes selecionados</span>
+        <button type="button" id="startTrainingBtn" class="primary-btn" disabled>Iniciar treino</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== TELA DE PRÁTICA ===================== -->
+  <section id="tab-play" class="tab-panel">
+
+    <div id="micSetup" class="mic-setup">
+      <p>Para eu ouvir o que você está tocando, preciso acessar seu microfone.</p>
+      <button type="button" id="enableMicBtn" class="primary-btn">Ativar microfone</button>
+      <div id="micError" class="error-text"></div>
+    </div>
+
+    <div id="gameArea" class="game-area hidden">
+
+      <div class="mode-switcher" id="modeSwitcher">
+        <button type="button" data-mode="learning" class="mode-btn">Aprendizagem</button>
+        <button type="button" data-mode="progressive" class="mode-btn">Progressivo</button>
+        <button type="button" data-mode="practice" class="mode-btn">Prática livre</button>
+      </div>
+      <p class="mode-desc" id="modeDesc"></p>
+      <div class="mode-progress hidden" id="modeProgress" title="Quanto mais cheio, mais variado o sorteio entre as formas">
+        <div class="mode-progress-fill" id="modeProgressFill"></div>
+      </div>
+
+      <div class="score-bar">
+        <div class="stat-tile" title="Acertos na sessão"><strong id="scoreCorrect">0</strong><span>acertos</span></div>
+        <div class="stat-tile" title="Sequência atual"><strong id="streak">0</strong><span>sequência</span></div>
+        <div class="stat-tile" title="Taxa de acerto na sessão"><strong id="accuracy">—</strong><span>precisão</span></div>
+      </div>
+
+      <div class="chord-prompt">
+        <p class="voicing-label" id="voicingLabel">Aberto</p>
+        <h2 class="chord-name" id="chordName">—</h2>
+        <p class="live-timer" id="liveTimer">0.0s</p>
+        <p class="hint-text" id="statusText">Toque o acorde no violão...</p>
+      </div>
+
+      <div class="volume-meter">
+        <span class="volume-label">Mic</span>
+        <div class="volume-track"><div class="volume-fill" id="volumeFill"></div></div>
+      </div>
+
+      <div class="chroma-meter" id="chromaMeter"></div>
+
+      <div class="action-buttons">
+        <button type="button" id="manualCorrectBtn" class="secondary-btn">Marquei certo</button>
+        <button type="button" id="revealBtn" class="secondary-btn">Mostrar acorde</button>
+      </div>
+
+      <div id="diagramArea" class="diagram-area hidden">
+        <div id="diagramSvgContainer" class="diagram-svg-container"></div>
+        <p id="diagramChordFullName" class="diagram-full-name"></p>
+        <div class="auto-advance-bar" id="autoAdvanceBar"><div class="auto-advance-fill" id="autoAdvanceFill"></div></div>
+        <button type="button" id="nextBtn" class="primary-btn">Próximo acorde</button>
+      </div>
+
+      <details class="legend">
+        <summary>Legenda do diagrama e ajustes</summary>
+        <ul>
+          <li><strong>Linha grossa no topo</strong>: a pestana (traste 0 / rasteira), quando o acorde começa aí.</li>
+          <li><strong>Número à esquerda</strong> (ex.: "3ª"): casa onde o diagrama começa, quando não é no início do braço.</li>
+          <li><strong>×</strong> acima da corda: não toque essa corda. <strong>○</strong>: toque a corda solta.</li>
+          <li><strong>Bolinha com número</strong>: casa e dedo (1 indicador, 2 médio, 3 anelar, 4 mindinho).</li>
+          <li><strong>Barra comprida</strong>: pestana com o dedo indicador cobrindo várias cordas.</li>
+          <li>O microfone detecta se as <em>notas</em> do acorde estão certas, mas não consegue saber em qual casa exata você tocou — essa parte é com você.</li>
+        </ul>
+        <label class="sensitivity-control">
+          Sensibilidade da detecção
+          <input type="range" id="sensitivitySlider" min="0.5" max="0.85" step="0.01">
+        </label>
+        <label class="auto-advance-toggle">
+          <input type="checkbox" id="autoAdvanceCheckbox" checked>
+          Avançar automaticamente ao acertar
+        </label>
+        <label class="auto-advance-toggle">
+          <input type="checkbox" id="timingEnabledCheckbox" checked>
+          Medir tempo de formação do acorde
+        </label>
+      </details>
+    </div>
+  </section>
+
+  <!-- ===================== ESTATÍSTICAS ===================== -->
+  <section id="tab-stats" class="tab-panel">
+    <h2>Seu progresso</h2>
+    <p class="hint-text">Os acordes com mais erros aparecem primeiro — e são sorteados com mais frequência na prática.</p>
+    <div id="statsTable"></div>
+    <button type="button" id="resetStatsBtn" class="danger-btn">Resetar progresso</button>
+  </section>
+
+</main>
+
+<footer class="app-footer">
+  <p>Dica: toque perto do microfone, deixe o acorde soar por um instante e evite ruído de fundo.</p>
+</footer>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<script src="js/chords-data.js"></script>
+<script src="js/chord-diagram.js"></script>
+<script src="js/pitch-detector.js"></script>
+<script src="js/stats-math.js"></script>
+<script src="js/stats-store.js"></script>
+<script src="js/timing-store.js"></script>
+<script src="js/session-store.js"></script>
+<script src="js/ui-sound.js"></script>
+<script src="js/toasts.js"></script>
+<script src="js/game.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
